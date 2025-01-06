@@ -1,29 +1,26 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { FaFacebookF, FaInstagram, FaLinkedin } from "react-icons/fa";
 // import Logo from "../assets/main-logo.png";
-import Logo from "../assets/logo3.png";
+import Logo from "../assets/finallogo.png";
 import { useState } from "react";
 import {
   Sheet,
   SheetClose,
   SheetContent,
-  SheetDescription,
   SheetFooter,
   SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { MenuIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 
 export default function Header() {
   const [menu, setMenu] = useState("Home");
   const navigate = useNavigate();
   return (
-    <header className="flex justify-between z-20 border-b items-center backdrop-blur sticky bg-background/50 top-0">
+    <header className="flex justify-between z-20  border-b items-center backdrop-blur sticky bg-background/50 top-0">
       <Link to={"/"} onClick={() => setMenu("Home")}>
-        <img src={Logo} alt="Logo" className="w-[180px] py-4" />
+        <img src={Logo} alt="Logo" className="w-[180px] py-4 mx-5" />
       </Link>
 
       <div className="hidden lg:block">

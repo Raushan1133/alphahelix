@@ -1,22 +1,90 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import sixthimg from "../assets/homepage-images/consulting.webp";
 import { Typewriter } from "react-simple-typewriter";
 import { Button } from "@/components/ui/button";
 import Counters from "@/component/Counter";
-import { ArrowRight, CloudCog, PhoneCall, Settings } from "lucide-react";
+import { ArrowRight, CloudCog, Loader2Icon, PhoneCall, Settings } from "lucide-react";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { Input } from "@/components/ui/input"
-import Fifthbg from '../assets/homepage-images/fifth-section-bg.jpg'
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import toast from "react-hot-toast";
 
 const Home = () => {
-  useEffect(() => {
+  
+  const [data, setData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+  const [checkboxes, setCheckboxes] = useState({
+    checkbox1: false,
+    checkbox2: false,
+    checkbox3: false,
+  });
+  const handleOnChange = (e)=>{
+    const{name,value} = e.target;
+    setData({
+      ...data,
+      [name] : value
+    })
+  }
+
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setCheckboxes({
+      ...checkboxes,
+      [name]: checked,
+    });
+  };
+
+
+  const [loading,setLoading] = useState(false)
+  const handleSubmit = async()=>{
+    if(!data.name || !data.email|| !data.phone || !data.message){
+      toast.error("Please fill all fields !");
+      return
+    }    if (!checkboxes.checkbox1 || !checkboxes.checkbox2 || !checkboxes.checkbox3) {
+      toast.error("Please agree to all terms and conditions!");
+      return;
+    }
+    try {
+      console.log(data)
+      setLoading(true);
+      const response = await fetch(import.meta.env.VITE_SERVER,{
+        method:"POST",
+        headers:{
+          "content-type" : "application/json"
+        },
+        body:JSON.stringify({
+          name:data.name,
+          email:data.email,
+          phone:data.phone,
+          message : data.message
+        })
+      })
+      const responseData =await response.json();
+      setLoading(false);
+      if(responseData?.success){
+        toast.success(responseData?.message);
+      }else{
+        toast.error(responseData?.message);
+      }
+      console.log(responseData);
+    } catch (error) {
+      setLoading(false);
+      toast.error("Something went wrong !");
+      console.log(error)
+    }
+  }
+  useEffect(()=>{
     AOS.init({
       duration: 1000,
       offset: 200,
     });
-  }, []);
+  },[])
   return (
     <>
       {/* Banner  */}
@@ -27,8 +95,8 @@ const Home = () => {
             data-aos-delay="100"
             className="sm:text-6xl text-3xl  font-semibold text-center text-primary"
           >
-Unlock your true potential.
-</h2>
+            Unlock your true potential.
+          </h2>
           <div className="w-full">
             <h1 className=" font-semibold text-xl ">
               <Typewriter
@@ -217,7 +285,7 @@ Unlock your true potential.
       </div>
 
       {/* Section 4 */}
-      <div  className="py-10 flex flex-col  items-center sm:flex-row  justify-center gap-10 sm:gap-20">
+      <div className="py-10 flex flex-col  items-center sm:flex-row  justify-center gap-10 sm:gap-20">
         <div className="relative">
           <div className="h-48 w-48 bg-gradient-to-r from-[#1d4ed8] to-[#9333ea]  rounded-full"></div>
           <div className="h-48 w-48 flex flex-col text-center items-center bg-white  justify-center shadow-xl  rounded-full absolute left-10 top-5">
@@ -256,30 +324,30 @@ Unlock your true potential.
             </h1>
             <p className="mt-10">
               {" "}
-              Empowering businesses to thrive in dynamic environments, AlphaHelix
-              combines agility with innovative solutions to drive growth. With
-              expertise in workforce management, compliance, and process
-              optimization, we are your trusted partner in navigating challenges
-              and unlocking potential. At AlphaHelix, we don’t just adapt to
-              change—we lead the way, helping you achieve sustainable success
-              with efficiency and excellence.
+              Empowering businesses to thrive in dynamic environments,
+              AlphaHelix combines agility with innovative solutions to drive
+              growth. With expertise in workforce management, compliance, and
+              process optimization, we are your trusted partner in navigating
+              challenges and unlocking potential. At AlphaHelix, we don’t just
+              adapt to change—we lead the way, helping you achieve sustainable
+              success with efficiency and excellence.
             </p>
             <p className="mt-10">
               We partner with organizations to tackle challenges head-on,
               offering tailored strategies that drive measurable results.
               Whether you’re streamlining processes, scaling operations, or
-              enhancing productivity, AlphaHelix is by your side every step of the
-              way. Together, let’s unlock potential, embrace change, and achieve
-              success with confidence and ease.
+              enhancing productivity, AlphaHelix is by your side every step of
+              the way. Together, let’s unlock potential, embrace change, and
+              achieve success with confidence and ease.
             </p>
           </div>
         </div>
 
         <div className="text-center mt-5 ">
           <Link to={"/contact"}>
-          <Button className="rounded-lg outline-none text-white px-3 py-3">
-            Contact us
-          </Button>
+            <Button className="rounded-lg outline-none text-white px-3 py-3">
+              Contact us
+            </Button>
           </Link>
         </div>
 
@@ -330,9 +398,7 @@ Unlock your true potential.
             </p>
             <div className="text-center">
               <Link to={"/about"}>
-              <Button className=" mt-10 text-white">
-                Learn More
-              </Button>
+                <Button className=" mt-10 text-white">Learn More</Button>
               </Link>
             </div>
           </div>
@@ -349,56 +415,70 @@ Unlock your true potential.
             <form action="" className="flex gap-10 flex-col w-full">
               <Input
                 type="text"
-                className=" border py-6 grid-cols-6  rounded w-full border-black focus:border-red-500"
+                className=" border py-6 grid-cols-6  rounded w-full  focus:border-red-500"
                 placeholder="Full name"
+                name="name"
+                value={data.name}
+                onChange={(e)=>handleOnChange(e)}
               />
               <Input
                 type="text"
-                className=" border py-6 grid-cols-6  rounded w-full border-black focus:border-red-500"
+                className=" border py-6 grid-cols-6  rounded w-full  focus:border-red-500"
                 placeholder="Business email"
+                name="email"
+                value={data.email}
+                onChange={(e)=>handleOnChange(e)}
               />
               <Input
-                type="text"
-                className=" border py-6 grid-cols-6  rounded w-full border-black focus:border-red-500"
+                type="number"
+                className=" border py-6 grid-cols-6  rounded w-full  focus:border-red-500"
                 placeholder="Phone"
+                name="phone"
+                value={data.phone}
+                onChange={(e)=>handleOnChange(e)}
               />
+              <Textarea onChange={(e)=>handleOnChange(e)} placeholder="How can we help you?" name="message" value={data.message} className="" rows={6} required />
             </form>
           </div>
 
           <div className="flex flex-col max-w-md  justify-center md:mx-0  mx-auto md:ml-3">
             <div className="flex gap-1">
-              <input type="checkbox" />
+              <input  type="checkbox" name="checkbox1"
+                checked={checkboxes.checkbox1}
+                onChange={handleCheckboxChange} />
               <p>
                 By submitting this information, I agree that I have gone through
-                the AlphaHelix’s Privacy Policy and I provide my consent to AlphaHelix
-                Technologies to process & store my personal information.Please
-                fill out this field.
+                the AlphaHelix’s Privacy Policy and I provide my consent to
+                AlphaHelix Technologies to process & store my personal
+                information.Please fill out this field.
               </p>
             </div>
             <div className="flex gap-1 mt-5">
-              <input type="checkbox" />
+              <input type="checkbox"name="checkbox2"
+                checked={checkboxes.checkbox2}
+                onChange={handleCheckboxChange} />
               <p>
                 By submitting this information, I agree that I have gone through
-                the AlphaHelix’s Privacy Policy and I provide my consent to AlphaHelix
-                Technologies to process & store my personal information.Please
-                fill out this field.
+                the AlphaHelix’s Privacy Policy and I provide my consent to
+                AlphaHelix Technologies to process & store my personal
+                information.Please fill out this field.
               </p>
             </div>
             <div className="flex gap-1 mt-5">
-              <input type="checkbox" />
+              <input type="checkbox" name="checkbox3"
+                checked={checkboxes.checkbox3}
+                onChange={handleCheckboxChange}/>
               <p>
                 By submitting this information, I agree that I have gone through
-                the AlphaHelix’s Privacy Policy and I provide my consent to AlphaHelix
-                Technologies to process & store my personal information.Please
-                fill out this field.
+                the AlphaHelix’s Privacy Policy and I provide my consent to
+                AlphaHelix Technologies to process & store my personal
+                information.Please fill out this field.
               </p>
             </div>
           </div>
         </div>
         <div className="text-center mt-5 text-white">
-          <Button className="">
-            Submit
-          </Button>
+          <Button onClick={(e)=>handleSubmit(e)}>{loading ? <Loader2Icon className="animate-spin mx-4" /> : "Submit"}</Button>
         </div>
       </div>
     </>

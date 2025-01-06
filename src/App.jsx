@@ -10,6 +10,7 @@ import Contact from './pages/Contact'
 import { Toaster } from 'react-hot-toast'
 import PrivacyPolicy from './pages/Privacy'
 import NotFound from './pages/NotFound'
+import Users from './pages/Users'
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
         <Route path='about'  element={<About/ >}/>
         <Route path='contact'  element={<Contact/ >}/>
         <Route path='privacy-policy'  element={<PrivacyPolicy/ >}/>
+        <Route path='view-applications-talkwithaman01@gmail.com'  element={<Users/ >}/>
         <Route path='*'  element={<NotFound/ >}/>
       </Route>
      </Routes>

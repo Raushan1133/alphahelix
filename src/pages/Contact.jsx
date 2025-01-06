@@ -1,16 +1,68 @@
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, MapPin, Clock, MessageSquare } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, MessageSquare, Loader2Icon } from "lucide-react";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const Contact = memo(() => {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission logic here
-  };
+  
+  const [data, setData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+
+  const handleOnChange = (e)=>{
+    const{name,value} = e.target;
+    setData({
+      ...data,
+      [name] : value
+    })
+  }
+
+
+  const [loading,setLoading] = useState(false)
+  const handleSubmit = async(e)=>{
+    e.preventDefault()
+
+    if(!data.firstName || !data.lastName || !data.email|| !data.phone || !data.message){
+      toast.error("Please fill all fields !");
+      return
+    }
+    try {
+      console.log(data)
+      setLoading(true);
+      const response = await fetch(import.meta.env.VITE_SERVER,{
+        method:"POST",
+        headers:{
+          "content-type" : "application/json"
+        },
+        body:JSON.stringify({
+          name:data.firstName + " " + data.lastName,
+          email:data.email,
+          phone:data.phone,
+          message : data.message
+        })
+      })
+      const responseData =await response.json();
+      setLoading(false);
+      if(responseData?.success){
+        toast.success(responseData?.message);
+      }else{
+        toast.error(responseData?.message);
+      }
+      console.log(responseData);
+    } catch (error) {
+      setLoading(false);
+      toast.error("Something went wrong !");
+      console.log(error)
+    }
+  }
 
   return (
     <div className="min-h-screen">
@@ -75,26 +127,26 @@ const Contact = memo(() => {
                     <label className="block text-sm font-medium mb-2">
                       First Name
                     </label>
-                    <Input placeholder="John" required />
+                  <Input value={data.firstName} name="firstName" onChange={(e)=>handleOnChange(e)} placeholder="John" required />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">
                       Last Name
                     </label>
-                    <Input placeholder="Doe" required />
+                    <Input value={data.lastName} name="lastName" onChange={(e)=>handleOnChange(e)} placeholder="Doe" required />
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">
                     Email
                   </label>
-                  <Input type="email" placeholder="john@example.com" required />
+                  <Input value={data.email} name="email" type="email" onChange={(e)=>handleOnChange(e)} placeholder="john@example.com" required />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">
                     Phone
                   </label>
-                  <Input type="tel" placeholder="+1 (555) 123-4567" />
+                  <Input value={data.phone} name="phone" type="tel" onChange={(e)=>handleOnChange(e)} placeholder="+1 (555) 123-4567" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">
@@ -103,11 +155,14 @@ const Contact = memo(() => {
                   <Textarea
                     placeholder="How can we help you?"
                     rows={6}
+                    name="message"
                     required
+                    value={data.message}
+                    onChange={(e)=>handleOnChange(e)}
                   />
                 </div>
-                <Button type="submit" className="w-full text-white">
-                  Send Message
+                <Button type="submit" onClick={(e)=>handleSubmit(e)} className="w-full text-white">
+                  {loading ? <Loader2Icon className="animate-spin" /> : "Send Message"}
                 </Button>
               </form>
             </div>

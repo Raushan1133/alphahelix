@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import { FaArrowTurnUp } from "react-icons/fa6";
+import toast from 'react-hot-toast';
+import { Loader2Icon } from 'lucide-react';
 
 
 const Footer = () => {
@@ -23,6 +25,39 @@ const Footer = () => {
           const windowScroll = document.body.scrollTop|| document.documentElement.scrollTop;
       
           windowScroll > heightToHidden ? setIsVisible(true) : setIsVisible(false);
+        }
+        const[email,setEmail] = useState("");
+        const [loading,setLoading] = useState(false);
+        const handleSubmit = async(e)=>{
+          e.preventDefault();
+          try {
+            console.log(email)
+              if(!email){
+                toast.error("Please Provide an email !");
+                return;
+              }
+              setLoading(true);
+              const response = await fetch(import.meta.env.VITE_SERVER+"/subscribe",{
+                method:"POST",
+                headers:{
+                  "content-type" : "application/json"
+                },
+                body:JSON.stringify({
+                  email:email,
+                })
+              })
+              const data = await response?.json();
+              setLoading(false);
+              if(data.success){
+                toast.success(data?.message);
+              }else{
+                toast.error(data?.message);
+              }
+
+          } catch (error) {
+            setLoading(false);
+            toast.error("Somthing went wrong !");
+          }
         }
       
         useEffect(()=>{
@@ -59,8 +94,8 @@ const Footer = () => {
             <div className='flex flex-col gap-10 justify-center '>
                 <h1 className='font-bold text-white'>SUBSCRIBE</h1>
                 <div className='text-center gap-5 flex flex-col'>
-                <Input placeholder="Email Address*" className="border-b border-t-0 border-l-0 border-r-0 shadow-none" />
-                <Button className="text-white">Subscribe</Button>
+                <Input placeholder="Email Address*" type="email" onChange={(e)=>setEmail(e.target.value)} className="border-b border-t-0 border-l-0 border-r-0 shadow-none" />
+                <Button className="text-white" onClick={(e)=>handleSubmit(e)}>{loading ? <Loader2Icon className='animate-spin mx-6' /> : "Subscribe"}</Button>
                 </div>
             </div>
             
@@ -73,7 +108,7 @@ const Footer = () => {
       )
     }
 
-<p className='text-center'>&copy; {currentYear} Alphaheix Services. All Rights Reserved.</p>
+<p className='text-center'>&copy; {currentYear} Alphahelixservices. All Rights Reserved.</p>
 </div>
     </>
   )
