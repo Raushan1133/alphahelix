@@ -11,13 +11,19 @@ import { Toaster } from 'react-hot-toast'
 import PrivacyPolicy from './pages/Privacy'
 import NotFound from './pages/NotFound'
 import Users from './pages/Users'
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import ScrollToTop from './component/ScrollToTop'
 
 
 function App() {
+
+
   return (
     <>
     <Toaster/>
      <BrowserRouter>
+     <ScrollToTop />
      <Routes>
       <Route path='/' element={<Layout />}>
         <Route index element={<Home/ >}/>
